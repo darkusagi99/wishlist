@@ -15,11 +15,8 @@ class Presence extends Component {
         // Initialisations firebase
         this.wishlist = firebase.firestore().collection('wishes').doc('wishes');
 
-
         // Initialisation state
         this.state = {
-            presences: [],
-            alldaypresences: [],
             peoples: [],
             wishes: [],
             displayedwishes: [],
@@ -37,12 +34,10 @@ class Presence extends Component {
             peoples : JSON.parse(localStorage.getItem("peoples"))
         });
 
-        // Chargement des personnes
+        // Chargement des souhaits
         this.wishlist.get()
             .then(function(doc) {
                 // doc.data() is never undefined for query doc snapshots
-                var currentData = doc.data();
-
                 console.log("Wishes App", doc.id, " => ", doc.data());
 
                 // Chargement des souhaits

@@ -1,7 +1,6 @@
 import 'date-fns';
 import React, { Component } from 'react'
 import firebase from '../firebase';
-import {getDayId} from '../common/utils.js';
 
 class CreateWish extends Component {
 
@@ -11,126 +10,46 @@ class CreateWish extends Component {
 
         // Bind des méthodes
         this.handlePersonChange = this.handlePersonChange.bind(this);
+        this.onChangeUrl = this.onChangeUrl.bind(this);
+        this.onChangeText = this.onChangeText.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
         // Déclaration firebase
-        this.journeeRef = firebase.firestore().collection('wishes');
         this.wishlist = firebase.firestore().collection('wishes').doc('wishes');
-
-        // Initialisation pour la date du jour
-        var presenceDate = new Date();
-        presenceDate.setHours(0);
-        presenceDate.setMinutes(0);
-        presenceDate.setSeconds(0);
-        presenceDate.setMilliseconds(0);
-
-        var currentDateId = getDayId(presenceDate);
 
         // Initialisation du state
         this.state = {
-            presenceIndex : -1,
             personId : '',
-            selectedDate : presenceDate,
-            arrivalTime : new Date(),
-            depatureTime : new Date(),
-            hasMeal : false,
             peoples: [],
-            presences: [],
             wishes: [],
-            currentDateId : currentDateId
+            wishurl: '',
+            wishtext: ''
         }
     }
 
     // Chargement du composant
     componentDidMount() {
         var that = this;
-        var currentPresenceList;
-        var currentDateId = this.state.currentDateId;
-        var presenceDate = this.state.selectedDate;
-        var currentPersonId = '';
 
         // Chargement liste personnes
         this.setState({
             peoples : JSON.parse(localStorage.getItem("peoples"))
         });
 
-        // Initialisation des heures
+        // Chargement des souhaits
+        this.wishlist.get()
+            .then(function(doc) {
+                // doc.data() is never undefined for query doc snapshots
+                console.log("Wishes App", doc.id, " => ", doc.data());
 
-        if (this.props.match.params.id !== undefined) {
-            currentPersonId = this.props.match.params.id;
-
-            this.setState({
-                personId : this.props.match.params.id
+                // Chargement des souhaits
+                that.setState({
+                    wishes: doc.data().wishlist
+                });
+                that.forceUpdate();
             });
-
-        }
-
-        if (this.props.match.params.dateRef !== undefined) {
-            currentDateId = this.props.match.params.dateRef;
-            presenceDate.setFullYear(currentDateId.slice(0,4));
-            presenceDate.setMonth(currentDateId.slice(5,7));
-            presenceDate.setDate(currentDateId.slice(8,10));
-
-            this.setState({
-                currentDateId : currentDateId,
-                selectedDate : presenceDate
-            });
-
-        }
-
-        this.journeeRef.doc(currentDateId)
-        .get()
-        .then(function(doc) {
-            if(doc.exists)  {
-                currentPresenceList = doc.data().presences;
-            } else {
-                currentPresenceList = [];
-            }
-
-            that.setState({
-                presences : currentPresenceList
-            });
-
-            that.loadPresence(currentPersonId);
-
-            console.log("currentPresenceList Loaded", currentPresenceList);
-        });
 
     }
-
-    loadPresence(paramPersonId) {
-
-        console.log("id to find : ", this.state.personId);
-
-        // Recherche de la personne dans la liste des journées
-        var currentPresenceIndex = this.state.presences.findIndex(presence => presence.personId == paramPersonId);
-
-        console.log("currentPersonIndex : ", currentPresenceIndex);
-
-        // doc.data() is never undefined for query doc snapshots
-        if (currentPresenceIndex !== -1) {
-
-            this.setState({
-                presenceIndex : currentPresenceIndex,
-                personId : this.state.presences[currentPresenceIndex].personId,
-                selectedDate : new Date(this.state.presences[currentPresenceIndex].presenceDay.seconds*1000),
-                arrivalTime : new Date(this.state.presences[currentPresenceIndex].arrival.seconds*1000),
-                depatureTime : new Date(this.state.presences[currentPresenceIndex].departure.seconds*1000),
-                hasMeal : this.state.presences[currentPresenceIndex].hasMeal
-            });
-
-            this.state.presences[currentPresenceIndex].hasMeal ? this.refs.hasMeal.classList.add('active') : this.refs.hasMeal.classList.remove('active') ;
-            this.state.presences[currentPresenceIndex].hasMeal ? this.refs.hasMeal.innerHTML = "Avec Repas" : this.refs.hasMeal.innerHTML = "Sans Repas" ;
-
-        } else {
-
-            this.setState({
-                presenceIndex : -1
-            });
-        }
-
-    }
-
 
     handlePersonChange = e => {
 
@@ -141,45 +60,46 @@ class CreateWish extends Component {
             personId : e.target.value
         });
 
-        this.loadPresence(e.target.value);
-
     }
 
     onSubmit(e) {
         e.preventDefault();
 
-        var presenceList = this.state.presences;
+        var wishList = this.state.wishes;
 
-        var newPresence = {
+        var newWish = {
+            fullname : this.state.peoples[this.state.personId].fullname,
+            id : wishList.length + 1,
             personId : this.state.personId,
-            presenceDay : this.state.selectedDate,
-            arrival : this.state.arrivalTime,
-            departure : this.state.depatureTime,
-            hasMeal : this.state.hasMeal
+            supplier : '',
+            url : this.state.wishurl,
+            wish : this.state.wishtext
         }
 
-        if (this.state.presenceIndex === -1) {
+        wishList.push(newWish);
 
-            presenceList.push(newPresence);
-
-        } else {
-
-            presenceList[this.state.presenceIndex] = newPresence;
-
+        const wishesToSave = {
+            wishlist : wishList
         }
 
-        const JourneeToSave = {
-            presences : presenceList,
-            day : this.state.selectedDate.getDate(),
-            month : this.state.selectedDate.getMonth(),
-            year : this.state.selectedDate.getFullYear()
-        }
-
-        this.journeeRef.doc(this.state.currentDateId).set(JourneeToSave)
+        this.wishlist.set(wishesToSave)
         .then(this.props.history.push(`/wish/list`))
         .catch(error => {console.log(error);});
 
+    }
 
+    // Gestion changements nom
+    onChangeUrl(e) {
+        this.setState({
+            wishurl : e.target.value
+        });
+    }
+
+    // Gestion changements nom
+    onChangeText(e) {
+        this.setState({
+            wishtext : e.target.value
+        });
     }
 
     render() {
@@ -204,15 +124,15 @@ class CreateWish extends Component {
                         <label>Souhait:  </label>
                         <input type="text"
                         className="form-control"
-                        value={this.state.wish}
-                        onChange={this.onChangeName} />
+                        value={this.state.wishtext}
+                        onChange={this.onChangeText} />
                     </div>
                     <div className="form-group">
                         <label>URL:  </label>
                         <input type="text"
                         className="form-control"
                         value={this.state.wishurl}
-                        onChange={this.onChangeName} />
+                        onChange={this.onChangeUrl} />
                     </div>
                     <div className="form-group">
                         <input type="submit" value="Enregistrer" className="btn btn-primary"/>
