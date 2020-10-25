@@ -18,10 +18,4 @@ export const displayFormatedDate = (date) => {
     return dateToFormat.toLocaleDateString("fr-FR");
 }
 
-// Affichage d'une cellule de rapport
-
-
-
-// Affichage d'un total mensuel
-
 

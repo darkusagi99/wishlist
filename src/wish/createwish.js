@@ -1,15 +1,9 @@
 import 'date-fns';
 import React, { Component } from 'react'
-import DateFnsUtils from '@date-io/date-fns';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
 import firebase from '../firebase';
 import {getDayId} from '../common/utils.js';
 
-class CreateFastPresence extends Component {
+class CreateWish extends Component {
 
     // Constructeur
     constructor(props) {
@@ -17,15 +11,11 @@ class CreateFastPresence extends Component {
 
         // Bind des méthodes
         this.handlePersonChange = this.handlePersonChange.bind(this);
-        this.handleDateChange = this.handleDateChange.bind(this);
-        this.handleArrivalChange = this.handleArrivalChange.bind(this);
-        this.handleDepartureChange = this.handleDepartureChange.bind(this);
-        this.handleMealChange = this.handleMealChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.resetHours = this.resetHours.bind(this);
 
         // Déclaration firebase
-        this.journeeRef = firebase.firestore().collection('journee');
+        this.journeeRef = firebase.firestore().collection('wishes');
+        this.wishlist = firebase.firestore().collection('wishes').doc('wishes');
 
         // Initialisation pour la date du jour
         var presenceDate = new Date();
@@ -46,6 +36,7 @@ class CreateFastPresence extends Component {
             hasMeal : false,
             peoples: [],
             presences: [],
+            wishes: [],
             currentDateId : currentDateId
         }
     }
@@ -64,7 +55,6 @@ class CreateFastPresence extends Component {
         });
 
         // Initialisation des heures
-        this.resetHours();
 
         if (this.props.match.params.id !== undefined) {
             currentPersonId = this.props.match.params.id;
@@ -134,8 +124,6 @@ class CreateFastPresence extends Component {
 
         } else {
 
-            this.resetHours();
-
             this.setState({
                 presenceIndex : -1
             });
@@ -143,33 +131,11 @@ class CreateFastPresence extends Component {
 
     }
 
-    resetHours() {
-        // RAZ des heures
-        var arrivalDate = new Date();
-        var departureDate = new Date();
-
-        arrivalDate.setHours(global.baseMorningHour);
-        arrivalDate.setMinutes(global.baseMorningMinute);
-        arrivalDate.setSeconds(0);
-        arrivalDate.setMilliseconds(0);
-        departureDate.setHours(global.baseEveningHour);
-        departureDate.setMinutes(global.baseEveningMinute);
-        departureDate.setSeconds(0);
-        departureDate.setMilliseconds(0);
-
-        this.setState({
-            arrivalTime : arrivalDate,
-            depatureTime : departureDate
-        });
-
-    }
 
     handlePersonChange = e => {
 
         console.log("targetValue : ", e.target.value);
 
-        // RAZ des heures
-        this.resetHours();
 
         this.setState({
             personId : e.target.value
@@ -177,72 +143,6 @@ class CreateFastPresence extends Component {
 
         this.loadPresence(e.target.value);
 
-    }
-
-    handleDateChange = date => {
-
-        var that = this;
-        var currentDateId = getDayId(date);
-        var currentPresenceList;
-
-        // RAZ des heures
-        this.resetHours();
-
-        this.journeeRef.doc(currentDateId)
-        .get()
-        .then(function(doc) {
-            if(doc.exists)  {
-                currentPresenceList = doc.data().presences;
-            } else {
-                currentPresenceList = [];
-            }
-
-            that.setState({
-                selectedDate : date,
-                currentDateId : currentDateId,
-                presences : currentPresenceList
-            });
-
-
-            that.loadPresence(that.state.personId);
-
-        });
-
-        this.setState({
-            selectedDate : date,
-            currentDateId : currentDateId,
-            presences : currentPresenceList
-        });
-
-
-        console.log("DateId : ", currentDateId);
-
-    }
-
-    handleArrivalChange = date => {
-        this.setState({
-            arrivalTime : date
-        });
-    }
-
-    handleDepartureChange = date => {
-        this.setState({
-            depatureTime : date
-        });
-    }
-
-    handleMealChange(e) {
-        e.target.classList.toggle('active');
-        const active = e.target.classList.contains('active');
-        this.setState({
-            hasMeal: active
-        });
-
-        if (active) {
-            e.target.innerHTML = "Avec Repas";
-        }  else {
-            e.target.innerHTML = "Sans Repas";
-        }
     }
 
     onSubmit(e) {
@@ -276,7 +176,7 @@ class CreateFastPresence extends Component {
         }
 
         this.journeeRef.doc(this.state.currentDateId).set(JourneeToSave)
-        .then(this.props.history.push(`/presence/list`))
+        .then(this.props.history.push(`/wish/list`))
         .catch(error => {console.log(error);});
 
 
@@ -285,11 +185,11 @@ class CreateFastPresence extends Component {
     render() {
         return (
             <div style={{marginTop: 10}}>
-                <h3>Présence</h3>
+                <h3>Souhait</h3>
                 <form onSubmit={this.onSubmit}>
                     <div className="input-group mb-3">
                         <div className="input-group-prepend">
-                            <label className="input-group-text" htmlFor="inputGroupPerson">Eleve</label>
+                            <label className="input-group-text" htmlFor="inputGroupPerson">Personne</label>
                         </div>
 
                         <select className="custom-select" id="inputGroupPerson" value={this.state.personId} onChange={this.handlePersonChange}>
@@ -301,57 +201,18 @@ class CreateFastPresence extends Component {
                         </select>
                     </div>
                     <div className="form-group">
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardDatePicker
-                            disableToolbar
-                            variant="inline"
-                            format="dd/MM/yyyy"
-                            margin="normal"
-                            id="date-picker-inline"
-                            label="Date"
-                            autoOk="true"
-                            value={this.state.selectedDate}
-                            onChange={this.handleDateChange}
-                            KeyboardButtonProps={{
-                            'aria-label': 'change date',
-                            }}
-                            />
-                        </MuiPickersUtilsProvider>
+                        <label>Souhait:  </label>
+                        <input type="text"
+                        className="form-control"
+                        value={this.state.wish}
+                        onChange={this.onChangeName} />
                     </div>
                     <div className="form-group">
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardTimePicker
-                            margin="normal"
-                            id="time-picker"
-                            label="Arrive"
-                            ampm={false}
-                            value={this.state.arrivalTime}
-                            onChange={this.handleArrivalChange}
-                            KeyboardButtonProps={{
-                            'aria-label': 'change time',
-                            }}
-                            />
-                        </MuiPickersUtilsProvider>
-                    </div>
-                    <div className="form-group">
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardTimePicker
-                            margin="normal"
-                            id="time-picker"
-                            label="Depart"
-                            ampm={false}
-                            value={this.state.depatureTime}
-                            onChange={this.handleDepartureChange}
-                            KeyboardButtonProps={{
-                            'aria-label': 'change time',
-                            }}
-                            />
-                        </MuiPickersUtilsProvider>
-                    </div>
-                    <div className="form-group">
-                        <div className="btn-group btn-group-toggle" data-toggle="buttons">
-                            <button type="button" className="btn btn-secondary" onClick={this.handleMealChange} ref="hasMeal">Sans Repas</button>
-                        </div>
+                        <label>URL:  </label>
+                        <input type="text"
+                        className="form-control"
+                        value={this.state.wishurl}
+                        onChange={this.onChangeName} />
                     </div>
                     <div className="form-group">
                         <input type="submit" value="Enregistrer" className="btn btn-primary"/>
@@ -364,4 +225,4 @@ class CreateFastPresence extends Component {
 };
 
 
-export default CreateFastPresence
+export default CreateWish
