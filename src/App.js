@@ -97,7 +97,7 @@ class App extends Component {
                             <Switch>
                                 <Route path='/wish/create' component={ CreateWish } />
                                 <Route path='/wish/list' component={ Presence } />
-                                <Route path='/wish/update/:dateRef/:id' component={ CreateWish } />
+                                <Route path='/wish/update/:id' component={ CreateWish } />
                                 <Route path='/' component={ Presence } />
                             </Switch>
                           </div>

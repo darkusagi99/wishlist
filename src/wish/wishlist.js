@@ -48,6 +48,9 @@ class Presence extends Component {
                 that.forceUpdate();
             });
 
+        console.log(firebase.auth().currentUser.email);
+
+
     }
 
     handlePersonChange = e => {
@@ -69,9 +72,13 @@ class Presence extends Component {
             <div>
                 <center><h1>Souhaits</h1></center>
 
+        {
+            firebase.auth().currentUser.email == 'darkusagi99@gmail.com' ?
                 <div>
                     <Link to={'/wish/create'} className="nav-link">Création Souhait</Link>
                 </div>
+            : "<br>"
+        }
 
                 <div style={{marginTop: 10}}>
                     <h4>Filtres</h4>
