@@ -71,22 +71,6 @@ class App extends Component {
               that.forceUpdate();
           });
 
-          // Chargement des personnes
-          var localParams = JSON.parse(localStorage.getItem("param"));
-          if (!localParams) {
-                this.paramRef.get()
-                .then(function(querySnapshot) {
-                    querySnapshot.forEach(function(doc) {
-                    // doc.data() is never undefined for query doc snapshots
-                        localParams = doc.data();
-                        console.log("Params => ", localParams);
-                    });
-
-                    localStorage.setItem("param", JSON.stringify(localParams));
-
-                });
-          }
-
       }
 
       render() {
@@ -100,7 +84,7 @@ class App extends Component {
 
         <div>
 
-        {
+        {  user ?
            <div>
                     <Router>
                           <div className="container">
@@ -119,6 +103,7 @@ class App extends Component {
                           </div>
                     </Router>
                 </div>
+          : IfUnAuthed()
         }
         </div>
         );
