@@ -51,7 +51,7 @@ class Presence extends Component {
                     // Chargement des souhaits
                     that.setState({
                         wishes: doc.data().wishlist.filter((wish) => (wish.supplier == '')),
-                        displayedwishes: doc.data().wishlist
+                        displayedwishes: doc.data().wishlist.filter((wish) => (wish.supplier == ''))
                     });
                 }
                 that.forceUpdate();
