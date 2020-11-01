@@ -55,7 +55,13 @@ class Presence extends Component {
 
     handlePersonChange = e => {
 
-        var selectedwishes = this.state.wishes.filter((wish) => (e.target.value == wish.personId));
+        var selectedwishes;
+
+        if (e.target.value !== "") {
+            selectedwishes = this.state.wishes.filter((wish) => (e.target.value == wish.personId));
+        } else {
+            selectedwishes = this.state.wishes;
+        }
 
         console.log("selected ", e.target.value);
 
@@ -77,7 +83,7 @@ class Presence extends Component {
                 <div>
                     <Link to={'/wish/create'} className="nav-link">Création Souhait</Link>
                 </div>
-            : "<br>"
+            : <br/>
         }
 
                 <div style={{marginTop: 10}}>
