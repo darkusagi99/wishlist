@@ -8,6 +8,7 @@ import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
 import Presence from './wish/wishlist';
 import CreateWish from './wish/createwish';
+import UpdateWish from './wish/updatewish';
 import './App.css';
 
 import withFirebaseAuth from 'react-with-firebase-auth'
@@ -97,7 +98,7 @@ class App extends Component {
                             <Switch>
                                 <Route path='/wish/create' component={ CreateWish } />
                                 <Route path='/wish/list' component={ Presence } />
-                                <Route path='/wish/update/:id' component={ CreateWish } />
+                                <Route path='/wish/update/:id' component={ UpdateWish } />
                                 <Route path='/' component={ Presence } />
                             </Switch>
                           </div>
