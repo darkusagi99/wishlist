@@ -28,6 +28,7 @@ class Presence extends Component {
     componentDidMount() {
 
         var that = this;
+        var currentUser = firebase.auth().currentUser.email;
 
         // Chargement liste personnes
         this.setState({
@@ -40,12 +41,21 @@ class Presence extends Component {
                 // doc.data() is never undefined for query doc snapshots
                 console.log("Wishes App", doc.id, " => ", doc.data());
 
-                // Chargement des souhaits
-                that.setState({
-                    wishes: doc.data().wishlist,
-                    displayedwishes: doc.data().wishlist
-                });
+                if (currentUser == 'darkusagi99@gmail.com') {
+                    // Chargement des souhaits
+                    that.setState({
+                        wishes: doc.data().wishlist,
+                        displayedwishes: doc.data().wishlist
+                    });
+                } else {
+                    // Chargement des souhaits
+                    that.setState({
+                        wishes: doc.data().wishlist.filter((wish) => (wish.supplier == '')),
+                        displayedwishes: doc.data().wishlist
+                    });
+                }
                 that.forceUpdate();
+
             });
 
         console.log(firebase.auth().currentUser.email);
@@ -120,7 +130,12 @@ class Presence extends Component {
                                 <td>{wishes.fullname}</td>
                                 <td>{wishes.wish}</td>
                                 <td><a href={wishes.url}>lien</a></td>
-                                <td><Link to={'/presence/update/' + wishes.id} className="nav-link">MàJ Présence</Link></td>
+                                <td>
+                                {
+                                    wishes.supplier ? <span>{wishes.supplier}</span> :
+                                    <Link to={'/wish/update/' + wishes.id} className="nav-link">Reserver cadeau</Link>
+                                }
+                                </td>
                             </tr>
                         ))}
                     </tbody>
