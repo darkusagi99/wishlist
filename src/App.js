@@ -11,7 +11,6 @@ import CreateWish from './wish/createwish';
 import UpdateWish from './wish/updatewish';
 import './App.css';
 
-import db from "./firebase";
 import withFirebaseAuth from 'react-with-firebase-auth'
 import firebase from 'firebase/app';
 require('firebase/auth')
@@ -33,11 +32,6 @@ const IfUnAuthed = () => {
 			  .then((result) => {
 				// The signed-in user info.
 				var user = result.user;
-				// ...
-			  }).catch((error) => {
-				// Handle Errors here.
-				var errorCode = error.code;
-				var errorMessage = error.message;
 			  });
 
             }}
@@ -53,36 +47,7 @@ class App extends Component {
       constructor(props) {
 
           super(props);
-
-          this.peopleListRef = db.collection('peopleList').doc("peoples");
           this.state = { peoples: [] };
-      }
-
-      // Méthodes pour le chargement des présences
-      componentDidMount() {
-
-          var newPeople = [];
-          var that = this;
-
-          // Chargement des personnes
-          this.peopleListRef.get()
-          .then(function(doc) {
-                  // doc.data() is never undefined for query doc snapshots
-                  var currentData = doc.data();
-
-                  newPeople.push(currentData);
-
-                  console.log("Personne App", doc.id, " => ", doc.data());
-
-
-              // MAJ de l'etat
-              that.setState({
-                  peoples: doc.data().peoples
-              });
-              localStorage.setItem("peoples", JSON.stringify(doc.data().peoples));
-              that.forceUpdate();
-          });
-
       }
 
       render() {

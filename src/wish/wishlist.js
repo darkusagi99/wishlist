@@ -2,6 +2,7 @@ import 'date-fns';
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom';
 import firebase from 'firebase/app';
+import db from "../firebase";
 
 class Presence extends Component {
 
@@ -14,6 +15,7 @@ class Presence extends Component {
 
         // Initialisations firebase
         this.wishlist = firebase.firestore().collection('wishes').doc('wishes');
+        this.peopleListRef = db.collection('peopleList').doc("peoples");
 
         // Initialisation state
         this.state = {
@@ -28,12 +30,34 @@ class Presence extends Component {
     componentDidMount() {
 
         var that = this;
+        var newPeople = [];
         var currentUser = firebase.auth().currentUser.email;
+		
+		// Chargement des personnes
+		if(localStorage.getItem("peoples") === null) {
+			this.peopleListRef.get()
+			  .then(function(doc) {
+					  // doc.data() is never undefined for query doc snapshots
+					  var currentData = doc.data();
 
-        // Chargement liste personnes
-        this.setState({
-            peoples : JSON.parse(localStorage.getItem("peoples"))
-        });
+					  newPeople.push(currentData);
+
+					  console.log("Personne App", doc.id, " => ", doc.data());
+
+
+				  // MAJ de l'etat
+				  that.setState({
+					  peoples: doc.data().peoples
+				  });
+				  localStorage.setItem("peoples", JSON.stringify(doc.data().peoples));
+				  that.forceUpdate();
+			});
+		} else {
+			// Chargement liste personnes
+			this.setState({
+				peoples : JSON.parse(localStorage.getItem("peoples"))
+			});
+		}
 
         // Chargement des souhaits
         this.wishlist.get()
