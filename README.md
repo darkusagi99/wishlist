@@ -1,3 +1,45 @@
+To reinstall project :
+
+- Install NPM
+- Launch :
+Update / download of versions
+## npm update
+
+If needed, fix versions by installing / uninstalling relevant packages
+## npm install xxxx
+## npm uninstall xxxx
+
+Must recreate file firebaseConfig.js with data from firebase settings (inside src directory)
+## npm install firebase-tools -g
+## firebase login
+## firebase init
+
+Create firebase.js file with content :
+
+####################
+import firebase from "firebase";
+  
+const firebaseConfig = {
+  apiKey: "xxxxxxxxxxxxxxxx",
+  authDomain: "xxxxxxxxxxxxxxxxxx",
+  databaseURL: "xxxxxxxxxxxxxxxxxx",
+  projectId: "xxxxxxxxxxxxxxxx",
+  storageBucket: "xxxxxxxxxxxxxx",
+  messagingSenderId: "xxxxxxxxxxxxxx",
+  appId: "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+};
+  
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+  
+export default db;
+
+####################
+
+Deploy new version (after build see below)
+## firebase deploy
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

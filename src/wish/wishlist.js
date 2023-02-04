@@ -1,7 +1,7 @@
 import 'date-fns';
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom';
-import firebase from '../firebase';
+import firebase from 'firebase/app';
 
 class Presence extends Component {
 
@@ -41,7 +41,7 @@ class Presence extends Component {
                 // doc.data() is never undefined for query doc snapshots
                 console.log("Wishes App", doc.id, " => ", doc.data());
 
-                if (currentUser == 'darkusagi99@gmail.com') {
+                if (currentUser === 'darkusagi99@gmail.com') {
                     // Chargement des souhaits
                     that.setState({
                         wishes: doc.data().wishlist,
@@ -50,8 +50,8 @@ class Presence extends Component {
                 } else {
                     // Chargement des souhaits
                     that.setState({
-                        wishes: doc.data().wishlist.filter((wish) => (wish.supplier == '')),
-                        displayedwishes: doc.data().wishlist.filter((wish) => (wish.supplier == ''))
+                        wishes: doc.data().wishlist.filter((wish) => (wish.supplier === '' || wish.supplier === currentUser)),
+                        displayedwishes: doc.data().wishlist.filter((wish) => (wish.supplier === '' || wish.supplier === currentUser))
                     });
                 }
                 that.forceUpdate();
@@ -68,7 +68,7 @@ class Presence extends Component {
         var selectedwishes;
 
         if (e.target.value !== "") {
-            selectedwishes = this.state.wishes.filter((wish) => (e.target.value == wish.personId));
+            selectedwishes = this.state.wishes.filter((wish) => (e.target.value === wish.personId));
         } else {
             selectedwishes = this.state.wishes;
         }
@@ -89,7 +89,7 @@ class Presence extends Component {
                 <center><h1>Souhaits</h1></center>
 
         {
-            firebase.auth().currentUser.email == 'darkusagi99@gmail.com' ?
+            firebase.auth().currentUser.email === 'darkusagi99@gmail.com' ?
                 <div>
                     <Link to={'/wish/create'} className="nav-link">Création Souhait</Link>
                 </div>

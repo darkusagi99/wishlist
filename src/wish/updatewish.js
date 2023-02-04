@@ -1,6 +1,6 @@
 import 'date-fns';
 import React, { Component } from 'react'
-import firebase from '../firebase';
+import firebase from 'firebase/app';
 
 class UpdateWish extends Component {
 
@@ -85,7 +85,7 @@ class UpdateWish extends Component {
         console.log(this.state.wishes);
         console.log(this.state.currentIndex);
 
-        if (wishList != undefined && wishList != null) {
+        if (wishList !== undefined && wishList !== null) {
             wishList[this.state.currentIndex].supplier = firebase.auth().currentUser.email;
 
             const wishesToSave = {

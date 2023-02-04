@@ -11,10 +11,10 @@ import CreateWish from './wish/createwish';
 import UpdateWish from './wish/updatewish';
 import './App.css';
 
+import db from "./firebase";
 import withFirebaseAuth from 'react-with-firebase-auth'
-import * as firebase from 'firebase/app';
-import 'firebase/auth';
-
+import firebase from 'firebase/app';
+require('firebase/auth')
 
 const firebaseAppAuth = firebase.auth();
 
@@ -28,7 +28,18 @@ const IfUnAuthed = () => {
           <button className="btn btn-secondary"
             onClick={() => {
               const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
-              firebase.auth().signInWithRedirect(googleAuthProvider);
+              //firebase.auth().signInWithRedirect(googleAuthProvider);
+			  firebase.auth().signInWithPopup(googleAuthProvider)
+			  .then((result) => {
+				// The signed-in user info.
+				var user = result.user;
+				// ...
+			  }).catch((error) => {
+				// Handle Errors here.
+				var errorCode = error.code;
+				var errorMessage = error.message;
+			  });
+
             }}
           >Sign in with Google
           </button>
@@ -43,7 +54,7 @@ class App extends Component {
 
           super(props);
 
-          this.peopleListRef = firebase.firestore().collection('peopleList').doc("peoples");
+          this.peopleListRef = db.collection('peopleList').doc("peoples");
           this.state = { peoples: [] };
       }
 

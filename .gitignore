@@ -1,2 +1,4 @@
 # Project exclude paths
 /node_modules/
+/build
+/src/firebase.js
