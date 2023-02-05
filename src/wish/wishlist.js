@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import firebase from 'firebase/app';
 import db from "../firebase";
 
-class Presence extends Component {
+class ListWish extends Component {
 
     // Constructeur
     constructor(props) {
@@ -12,9 +12,11 @@ class Presence extends Component {
 
         // Bind des méthodes
         this.handlePersonChange = this.handlePersonChange.bind(this);
+        this.addBooking = this.addBooking.bind(this);
+        this.removeBooking = this.removeBooking.bind(this);
 
         // Initialisations firebase
-        this.wishlist = firebase.firestore().collection('wishes').doc('wishes');
+        this.wishlist = firebase.firestore().collection('wishes');
         this.peopleListRef = db.collection('peopleList').doc("peoples");
 
         // Initialisation state
@@ -27,10 +29,10 @@ class Presence extends Component {
     }
 
     // Méthodes pour le chargement des présences
-    componentDidMount() {
+    loadWishInfo() {
 
         var that = this;
-        var newPeople = [];
+        var peopleList = [];
         var currentUser = firebase.auth().currentUser.email;
 		
 		// Chargement des personnes
@@ -40,7 +42,7 @@ class Presence extends Component {
 					  // doc.data() is never undefined for query doc snapshots
 					  var currentData = doc.data();
 
-					  newPeople.push(currentData);
+					  peopleList.push(currentData);
 
 					  console.log("Personne App", doc.id, " => ", doc.data());
 
@@ -57,39 +59,48 @@ class Presence extends Component {
 			this.setState({
 				peoples : JSON.parse(localStorage.getItem("peoples"))
 			});
+			peopleList = JSON.parse(localStorage.getItem("peoples"));
 		}
 
         // Chargement des souhaits
+		var loadedwishes = [];
         this.wishlist.get()
-            .then(function(doc) {
-                // doc.data() is never undefined for query doc snapshots
-                console.log("Wishes App", doc.id, " => ", doc.data());
+			.then((docList) => {
+				docList.forEach((doc) => {
+					// doc.data() is never undefined for query doc snapshots
+					console.log("Wishes App", doc.id, " => ", doc.data());
 
-                if (currentUser === 'darkusagi99@gmail.com') {
-                    // Chargement des souhaits
-                    that.setState({
-                        wishes: doc.data().wishlist,
-                        displayedwishes: doc.data().wishlist
-                    });
-                } else {
-                    // Chargement des souhaits
-                    that.setState({
-                        wishes: doc.data().wishlist.filter((wish) => (wish.supplier === '' || wish.supplier === currentUser)),
-                        displayedwishes: doc.data().wishlist.filter((wish) => (wish.supplier === '' || wish.supplier === currentUser))
-                    });
-                }
-                that.forceUpdate();
-
-            });
+					// Chargement des souhaits
+					var tempWish = doc.data();
+					tempWish.id = doc.id;
+					var tempPeople = peopleList.filter(people => people.id === Number(tempWish.personId));
+					tempWish.fullname = tempPeople[0].fullname;
+					
+					
+					console.log("Added Wishes", doc.id, " => ", tempWish);
+					
+					loadedwishes.push(tempWish);
+					
+				});
+				that.setState({
+					wishes : loadedwishes,
+					displayedwishes : loadedwishes
+				});
+				that.forceUpdate();
+			})
 
         console.log(firebase.auth().currentUser.email);
 
-
     }
+	
+	 // Chargement du composant
+    componentDidMount() {
+		this.loadWishInfo();
+	}
 
     handlePersonChange = e => {
 
-        var selectedwishes;
+        var selectedwishes = [];
 
         if (e.target.value !== "") {
             selectedwishes = this.state.wishes.filter((wish) => (e.target.value === wish.personId));
@@ -104,6 +115,36 @@ class Presence extends Component {
             displayedwishes : selectedwishes
         });
 
+    }
+	
+	addBooking = id => {
+		
+		var wishToUpdate = this.wishlist.doc(id);
+
+        console.log(firebase.auth().currentUser.email);
+        console.log(this.state.wishes);
+        console.log(this.state.currentIndex);
+		
+		var setWithMerge = wishToUpdate.set({
+			supplier: firebase.auth().currentUser.email
+		}, { merge: true })
+            .then(this.loadWishInfo())
+            .catch(error => {console.log(error);});
+    }
+	
+	removeBooking = id => {
+		
+		var wishToUpdate = this.wishlist.doc(id);
+
+        console.log(firebase.auth().currentUser.email);
+        console.log(this.state.wishes);
+        console.log(this.state.currentIndex);
+
+		var setWithMerge = wishToUpdate.set({
+			supplier: ''
+		}, { merge: true })
+            .then(this.loadWishInfo())
+            .catch(error => {console.log(error);});
     }
 
     // Rendu de la page
@@ -156,8 +197,9 @@ class Presence extends Component {
                                 <td><a href={wishes.url}>lien</a></td>
                                 <td>
                                 {
-                                    wishes.supplier ? <span>{wishes.supplier}</span> :
-                                    <Link to={'/wish/update/' + wishes.id} className="nav-link">Reserver cadeau</Link>
+                                    wishes.supplier ? <div><span>{wishes.supplier}</span> 
+                                    <button onClick={() => this.removeBooking(wishes.id)} className="nav-link">Supprimer réservation</button></div> :
+                                    <button onClick={() => this.addBooking(wishes.id)} className="nav-link">Reserver cadeau</button>
                                 }
                                 </td>
                             </tr>
@@ -172,4 +214,4 @@ class Presence extends Component {
 };
 
 
-export default Presence
+export default ListWish

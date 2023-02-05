@@ -16,6 +16,7 @@ class CreateWish extends Component {
 
         // Déclaration firebase
         this.wishlist = firebase.firestore().collection('wishes').doc('wishes');
+        this.wishlistCollection = firebase.firestore().collection('wishes');
 
         // Initialisation du state
         this.state = {
@@ -36,25 +37,10 @@ class CreateWish extends Component {
             peoples : JSON.parse(localStorage.getItem("peoples"))
         });
 
-        // Chargement des souhaits
-        this.wishlist.get()
-            .then(function(doc) {
-                // doc.data() is never undefined for query doc snapshots
-                console.log("Wishes App", doc.id, " => ", doc.data());
-
-                // Chargement des souhaits
-                that.setState({
-                    wishes: doc.data().wishlist
-                });
-                that.forceUpdate();
-            });
-
     }
 
     handlePersonChange = e => {
-
         console.log("targetValue : ", e.target.value);
-
 
         this.setState({
             personId : e.target.value
@@ -68,8 +54,6 @@ class CreateWish extends Component {
         var wishList = this.state.wishes;
 
         var newWish = {
-            fullname : this.state.peoples[this.state.personId].fullname,
-            id : wishList.length + 1,
             personId : this.state.personId,
             supplier : '',
             url : this.state.wishurl,
@@ -82,7 +66,8 @@ class CreateWish extends Component {
             wishlist : wishList
         }
 
-        this.wishlist.set(wishesToSave)
+        // Add the new wish in the list and redirect
+		this.wishlistCollection.add(newWish)
         .then(this.props.history.push(`/wish/list`))
         .catch(error => {console.log(error);});
 

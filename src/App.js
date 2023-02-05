@@ -6,9 +6,8 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
-import Presence from './wish/wishlist';
+import ListWish from './wish/wishlist';
 import CreateWish from './wish/createwish';
-import UpdateWish from './wish/updatewish';
 import './App.css';
 
 import withFirebaseAuth from 'react-with-firebase-auth'
@@ -73,9 +72,8 @@ class App extends Component {
                             </Navbar> <br/>
                             <Switch>
                                 <Route path='/wish/create' component={ CreateWish } />
-                                <Route path='/wish/list' component={ Presence } />
-                                <Route path='/wish/update/:id' component={ UpdateWish } />
-                                <Route path='/' component={ Presence } />
+                                <Route path='/wish/list' component={ ListWish } />
+                                <Route path='/' component={ ListWish } />
                             </Switch>
                           </div>
                     </Router>
