@@ -42,7 +42,7 @@ class ListWish extends Component {
 					  // doc.data() is never undefined for query doc snapshots
 					  var currentData = doc.data();
 
-					  peopleList.push(currentData);
+					  peopleList = currentData.peoples;
 
 					  console.log("Personne App", doc.id, " => ", doc.data());
 
@@ -61,14 +61,23 @@ class ListWish extends Component {
 			});
 			peopleList = JSON.parse(localStorage.getItem("peoples"));
 		}
+		
 
         // Chargement des souhaits
 		var loadedwishes = [];
-        this.wishlist.get()
+		var wishListLoad;
+		if (currentUser === 'darkusagi99@gmail.com') {
+			wishListLoad = this.wishlist;
+		} else {
+			wishListLoad = this.wishlist.where('supplier', 'in', ['', currentUser]);
+		}
+        wishListLoad.get()
 			.then((docList) => {
 				docList.forEach((doc) => {
 					// doc.data() is never undefined for query doc snapshots
 					console.log("Wishes App", doc.id, " => ", doc.data());
+					
+					console.log("peopleList", peopleList);
 
 					// Chargement des souhaits
 					var tempWish = doc.data();
