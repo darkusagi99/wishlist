@@ -196,6 +196,7 @@ class ListWish extends Component {
                             <th scope="col">Souhait</th>
                             <th scope="col">&nbsp;</th>
                             <th scope="col">&nbsp;</th>
+                            <th scope="col">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -206,9 +207,15 @@ class ListWish extends Component {
                                 <td><a href={wishes.url}>lien</a></td>
                                 <td>
                                 {
-                                    wishes.supplier ? <div><span>{wishes.supplier}</span> 
-                                    <button onClick={() => this.removeBooking(wishes.id)} className="nav-link">Supprimer réservation</button></div> :
-                                    <button onClick={() => this.addBooking(wishes.id)} className="nav-link">Reserver cadeau</button>
+                                    wishes.supplier && firebase.auth().currentUser.email === 'darkusagi99@gmail.com'? 
+									<span>{wishes.supplier}</span> : <span/>
+                                }
+                                </td>
+                                <td>
+                                {
+                                    wishes.supplier ?
+                                    <button onClick={() => this.removeBooking(wishes.id)} className="btn btn-info">Supprimer réservation</button> :
+                                    <button onClick={() => this.addBooking(wishes.id)} className="btn btn-primary">Reserver cadeau</button>
                                 }
                                 </td>
                             </tr>
