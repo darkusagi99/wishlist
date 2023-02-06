@@ -196,7 +196,10 @@ class ListWish extends Component {
                             <th scope="col">Souhait</th>
                             <th scope="col">&nbsp;</th>
                             <th scope="col">&nbsp;</th>
-                            <th scope="col">&nbsp;</th>
+							{
+								firebase.auth().currentUser.email === 'darkusagi99@gmail.com'? 
+								<th scope="col">&nbsp;</th> : <th scope="col" className="hiddenCell" />
+							}
                         </tr>
                     </thead>
                     <tbody>
@@ -212,12 +215,10 @@ class ListWish extends Component {
                                     <button onClick={() => this.addBooking(wishes.id)} className="btn btn-primary">Reserver cadeau</button>
                                 }
                                 </td>
-                                <td>
                                 {
-                                    wishes.supplier && firebase.auth().currentUser.email === 'darkusagi99@gmail.com'? 
-									<span>{wishes.supplier}</span> : <span/>
+                                    firebase.auth().currentUser.email === 'darkusagi99@gmail.com'? 
+									<td>{wishes.supplier}</td> : <td className="hiddenCell" />
                                 }
-                                </td>
                             </tr>
                         ))}
                     </tbody>
