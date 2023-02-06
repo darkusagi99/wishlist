@@ -207,15 +207,15 @@ class ListWish extends Component {
                                 <td><a href={wishes.url}>lien</a></td>
                                 <td>
                                 {
-                                    wishes.supplier && firebase.auth().currentUser.email === 'darkusagi99@gmail.com'? 
-									<span>{wishes.supplier}</span> : <span/>
+                                    wishes.supplier ?
+                                    <button onClick={() => this.removeBooking(wishes.id)} className="btn btn-info">Supprimer réservation</button> :
+                                    <button onClick={() => this.addBooking(wishes.id)} className="btn btn-primary">Reserver cadeau</button>
                                 }
                                 </td>
                                 <td>
                                 {
-                                    wishes.supplier ?
-                                    <button onClick={() => this.removeBooking(wishes.id)} className="btn btn-info">Supprimer réservation</button> :
-                                    <button onClick={() => this.addBooking(wishes.id)} className="btn btn-primary">Reserver cadeau</button>
+                                    wishes.supplier && firebase.auth().currentUser.email === 'darkusagi99@gmail.com'? 
+									<span>{wishes.supplier}</span> : <span/>
                                 }
                                 </td>
                             </tr>
